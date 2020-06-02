@@ -28,3 +28,16 @@ class LoopSubdivision : public Subdivision {
     public:
         void loadMesh(obj_mesh & _obj) override;
 };
+
+#include "subdivisions/catmull.h"
+class CatmullSubdivision : public Subdivision {
+	private:
+		std::vector<loop::vertex> vertexList;
+		std::vector<loop::edge> edgeList;
+		std::vector<loop::face> faceList;
+	protected:
+		void subdiv() override;
+		obj_mesh makeMesh() override;
+	public:
+		void loadMesh(obj_mesh & _obj) override;
+};
