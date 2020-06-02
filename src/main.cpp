@@ -4,10 +4,13 @@ int main()
 {
 	obj_mesh obj;
 	loadObj("models/tetrahedron.obj", obj);
+
 	LoopSubdivision loop;
 	loop.loadMesh(obj);
-	obj = loop.execute(4);
+	obj = loop.execute(3);
 	writeObj("build/output.obj", obj);
 
+	CatmullSubdivision catmull;
+	catmull.loadMesh(obj);
 	return 0;
 }

@@ -32,12 +32,14 @@ class LoopSubdivision : public Subdivision {
 #include "subdivisions/catmull.h"
 class CatmullSubdivision : public Subdivision {
 	private:
-		std::vector<loop::vertex> vertexList;
-		std::vector<loop::edge> edgeList;
-		std::vector<loop::face> faceList;
+		std::vector<catmull::vertex> vertexList;
+		std::vector<catmull::edge> edgeList;
+		std::vector<catmull::face> faceList;
 	protected:
 		void subdiv() override;
 		obj_mesh makeMesh() override;
 	public:
 		void loadMesh(obj_mesh & _obj) override;
+	
+		//Note: In this Catmull Clark implementation, we ignored uv & normal to save some time. In fact they can easily be calculated just like pos.
 };
