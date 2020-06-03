@@ -6,7 +6,7 @@
 #include <iostream>
 #include <glm/glm.hpp>
 
-#include "doosabin.h"
+#include "subdivision.h"
 
 // Decide whether a edge is boundary: Find adj faces of one of the two vertexs, and check whether any of them used the other vertex.
 // Use face as the iterator of loop to find edges
