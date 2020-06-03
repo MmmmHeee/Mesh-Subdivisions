@@ -12,6 +12,7 @@
 // Use face as the iterator of loop to find edges
 
 using namespace doosabin;
+std::pair<int, int> lineOrder(int v1, int v2);
 
 void DoosabinSubdivision::
 loadMesh(obj_mesh & _obj) {
@@ -38,7 +39,7 @@ loadMesh(obj_mesh & _obj) {
 		{
 			unsigned vi = curFace[j].v_idx;
 			f.v[j] = vi;
-			glm::vec3 pos = _obj.position[vi];
+			glm::vec3 pos = _obj.positions[vi];
 			fmp_tmp += pos;
 			vertexList[vi].pos = pos;
 			vertexList[vi].n_face.push_back(faceIdx);
@@ -52,11 +53,11 @@ loadMesh(obj_mesh & _obj) {
 			unsigned edgeIdx; std::pair<int, int> lineIdx;
 			if (j != curFace.size()) 
 			{
-				lineIdx = getLine(f.v[j - 1], f.v[j]);
+				lineIdx = lineOrder(f.v[j - 1], f.v[j]);
 			}
 			else
 			{
-				lineIdx = getLine(f.v[j - 1], f.v[0]);
+				lineIdx = lineOrder(f.v[j - 1], f.v[0]);
 			}
 			if (edgeIndex.find(lineIdx) == edgeIndex.end())
 			{
@@ -112,7 +113,7 @@ makeMesh()
 	return obj_mesh();
 }
 
-std::pair<int, int> getLine(int v1, int v2)
+std::pair<int, int> lineOrder(int v1, int v2)
 {
 	assert(v1 != v2);
 	if (v1 < v2) return std::pair<int, int>(v1, v2);
