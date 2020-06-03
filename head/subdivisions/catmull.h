@@ -17,9 +17,9 @@ namespace catmull {
 
 	struct face {
 		unsigned int v[4];
+		bool is_triangle = false;
 		std::vector<unsigned int> n_edge;
-		glm::vec3 face_point;
-		int new_point = -1; // save the newly created face point for each face temporarily. -1 means it has not been accessed
+		int fp_idx = -1; // save the newly created face point for each face temporarily. -1 means it has not been accessed
 	};
 
 	struct edge {
@@ -27,8 +27,7 @@ namespace catmull {
 		unsigned int v2;
 		std::vector<unsigned int> n_face;
 		bool is_border = true;
-		glm::vec3 edge_point;
 
-		int new_point = -1;    // save the newly created edge point for each line temporarily. -1 means it has not been accessed
+		int ep_idx = -1;    // save the newly created edge point for each line temporarily. -1 means it has not been accessed
 	};
 }
