@@ -12,5 +12,8 @@ int main()
 
 	CatmullSubdivision catmull;
 	catmull.loadMesh(obj);
+
+	DoosabinSubdivision doosabin;
+	doosabin.loadMesh(obj);
 	return 0;
 }
