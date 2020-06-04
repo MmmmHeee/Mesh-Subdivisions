@@ -3,7 +3,7 @@
 int main()
 {
 	obj_mesh obj;
-	loadObj("../models/tetrahedron.obj", obj);
+	loadObj("cube_quad.obj", obj);
 	obj_mesh obj_2;
 	loadObj("../models/quad.obj", obj_2);
 	//LoopSubdivision loop;
@@ -12,9 +12,9 @@ int main()
 	//writeObj("../build/output.obj", obj);
 
 
-	CatmullSubdivision catmull;
-	catmull.loadMesh(obj);
-	obj = catmull.execute(3);
-	writeObj("../build/catmull_opt.obj", obj);
+	DoosabinSubdivision doosabin;
+	doosabin.loadMesh(obj);
+	obj = doosabin.execute_doosabin(2);
+	//writeObj("output.obj", obj);
 	return 0;
 }

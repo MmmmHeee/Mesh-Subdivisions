@@ -53,8 +53,22 @@ private:
 protected:
 	void subdiv() override;
 	obj_mesh makeMesh() override;
+	obj_mesh doosabin_makeMesh();
 public:
 	void loadMesh(obj_mesh & _obj) override;
+	obj_mesh execute_doosabin(unsigned int _times = 3) {
+		obj_mesh tmp;
+		for (unsigned int i = 0; i < _times; i += 1) {
+			subdiv();
+			obj_mesh tmp_mesh = makeMesh();
+			writeObj("test.obj", tmp_mesh);
+			loadObj("test.obj", tmp);
+			loadMesh(tmp);
+			writeObj("output.obj", tmp_mesh);
+		}
+		return tmp;
+	}
+	
 
 	//No more normal calculate;
 };

@@ -14,6 +14,8 @@
 using namespace doosabin;
 std::pair<int, int> lineOrder(int v1, int v2);
 bool find_edge(std::map<std::pair<int, int>, int> edgeIndexx, int v1, int v2);
+int times = 0;
+obj_mesh temp;
 void DoosabinSubdivision::
 loadMesh(obj_mesh & _obj) {
     edgeList.clear(); faceList.clear(); vertexList.clear();
@@ -266,6 +268,7 @@ subdiv() {
 			new_edge.mid = 0.5f * (vertexList[new_edge.v1].pos + vertexList[new_edge.v2].pos);
 			new_face_mid += 0.25f * (vertexList[new_edge.v1].pos + vertexList[new_edge.v2].pos);
 			edgeIndexx[lineIdx] = new_edge_idx;
+			new_face.n_edge.push_back(new_edge_idx);
 			new_edge.n_face.push_back(face_index);
 			edgeList.push_back(std::move(new_edge));
 		}
@@ -280,6 +283,7 @@ subdiv() {
 			new_edge.mid = 0.5f * (vertexList[new_edge.v1].pos + vertexList[new_edge.v2].pos);
 			new_face_mid += 0.25f * (vertexList[new_edge.v1].pos + vertexList[new_edge.v2].pos);
 			edgeIndexx[lineIdx] = new_edge_idx;
+			new_face.n_edge.push_back(new_edge_idx);
 			new_edge.n_face.push_back(face_index);
 			edgeList.push_back(std::move(new_edge));
 		}
@@ -287,6 +291,10 @@ subdiv() {
 		new_face.face_mid_point = new_face_mid;
 		faceList.push_back(std::move(new_face));
 	}
+
+	
+
+
 	// point - face
 	for (size_t i = 0; i < oldVertexList.size(); i++)
 	{
@@ -294,6 +302,13 @@ subdiv() {
 		int face_insert = 0;
 		glm::vec3 new_face_mid = glm::vec3{ 0 };
 		vertex &curVertex = oldVertexList[i];
+		int tmp_save[2 * FACE_NUM];
+		int pass_tmp[2 * FACE_NUM];
+		for (size_t j = 0; j < 2*FACE_NUM; j++)
+		{
+			tmp_save[j] = -1;
+			pass_tmp[j] = -1;
+		}
 		for (size_t j = 0; j < FACE_NUM; j++)
 		{
 			if (curVertex.near_vertex[j] < INT_MAX)
@@ -304,23 +319,87 @@ subdiv() {
 					{
 						if (find_edge(edgeIndexx, curVertex.near_vertex[j], curVertex.near_vertex[k]))
 						{
-							new_face.v[face_insert++] = curVertex.near_vertex[k];
-							new_face.v[face_insert++] = curVertex.near_vertex[j];
-							new_face_mid += vertexList[curVertex.near_vertex[k]].pos;
+							tmp_save[face_insert++] = curVertex.near_vertex[j];
+							tmp_save[face_insert++] = curVertex.near_vertex[k];
+							//new_face.v[face_insert++] = curVertex.near_vertex[k];
 						}
 					}
 				}
 			}
 		}
+		pass_tmp[0] = tmp_save[0];
+		int pass_pointer = 0;
+		for (size_t j = 0; j < 2*FACE_NUM; j+=2)
+		{
+			if (tmp_save[j] != -1)
+			{
+				if (tmp_save[j] == pass_tmp[pass_pointer])
+				{
+					pass_pointer++;
+					pass_tmp[pass_pointer] = tmp_save[j + 1];
+				}
+				else if (tmp_save[j + 1] == pass_tmp[pass_pointer])
+				{
+					pass_pointer++;
+					pass_tmp[pass_pointer] = tmp_save[j];
+				}
+			}
+			else
+			{
+				break;
+			}
+		}
+		for (size_t j = 0; j <= pass_pointer; j++)
+		{
+			new_face.v[j] = pass_tmp[j];
+			new_face_mid += vertexList[pass_tmp[j]].pos;
+		}
+		
 		new_face.face_num = faceList.size();
-		new_face.face_side = face_insert-1;
+		new_face.face_side = pass_pointer;
 		new_face.face_mid_point = new_face_mid / (float)(face_insert);
 		faceList.push_back(std::move(new_face));
+	}
+	for (size_t i = 0; i < faceList.size(); i++)
+	{
+		face &curFace = faceList[i];
+		int face_num = curFace.face_num;
+		for (size_t j = 0; j < curFace.n_edge.size(); j++)
+		{
+			edge & curEdge = edgeList[curFace.n_edge[j]];
+			curEdge.n_face.push_back(face_num);
+		}
 	}
 }
 
 obj_mesh DoosabinSubdivision::
-makeMesh() 
+makeMesh()
+{
+	obj_mesh res;
+	res.positions.reserve(vertexList.size());
+	res.normals.reserve(vertexList.size());
+	res.faces.reserve(faceList.size());
+	for (auto iter = vertexList.cbegin(); iter != vertexList.end(); iter++) {
+		res.positions.push_back(iter->pos);
+		// not write normal
+		// res.normals.push_back(iter->normal);
+	}
+	for (auto iter = faceList.cbegin(); iter != faceList.end(); iter++) {
+		face_t newFace;
+		for (unsigned int i = 0; i <= iter->face_side; i++) {
+			vertex_index vi;
+			vi.v_idx = iter->v[i];
+			vi.vn_idx = -1; // not write normal
+			vi.vt_idx = -1;
+			newFace.push_back(vi);
+		}
+		res.faces.push_back(newFace);
+	}
+	return res;
+}
+
+obj_mesh DoosabinSubdivision::
+doosabin_makeMesh()
 {
 	obj_mesh res;
 	res.positions.reserve(vertexList.size());
