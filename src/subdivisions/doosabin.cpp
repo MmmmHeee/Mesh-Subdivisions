@@ -5,7 +5,7 @@
 #include <fstream>
 #include <iostream>
 #include <glm/glm.hpp>
-
+#include <glm/gtx/vector_angle.hpp>
 #include "subdivision.h"
 
 // Decide whether a edge is boundary: Find adj faces of one of the two vertexs, and check whether any of them used the other vertex.
@@ -219,7 +219,7 @@ subdiv() {
 					edge new_edge;
 					std::pair<int, int> lineIdx;
 					unsigned int new_edge_idx = edgeList.size();
-					lineIdx = lineOrder(oldFace.new_v_idx[j], oldFace.new_v_idx[(j + 1) % FACE_NUM]);
+					lineIdx = std::pair<int, int>(oldFace.new_v_idx[j], oldFace.new_v_idx[(j + 1) % FACE_NUM]);
 					new_edge.v1 = lineIdx.first; new_edge.v2 = lineIdx.second;
 					new_edge.mid = 0.5f * (vertexList[new_edge.v1].pos + vertexList[new_edge.v2].pos);
 					
@@ -235,7 +235,7 @@ subdiv() {
 					edge new_edge;
 					unsigned int new_edge_idx = edgeList.size();
 					std::pair<int, int> lineIdx;
-					lineIdx = lineOrder(oldFace.new_v_idx[j], oldFace.new_v_idx[0]);
+					lineIdx = std::pair<int, int>(oldFace.new_v_idx[j], oldFace.new_v_idx[0]);
 					new_edge.v1 = lineIdx.first; new_edge.v2 = lineIdx.second;
 					new_edge.mid = 0.5f * (vertexList[new_edge.v1].pos + vertexList[new_edge.v2].pos);
 					edgeIndexx[lineIdx] = new_edge_idx;
@@ -257,35 +257,57 @@ subdiv() {
 		face new_face;
 		glm::vec3 new_face_mid = glm::vec3{ 0 };
 		unsigned int face_index = faceList.size();
-		if (curEdge.v1_near_1 != INT_MAX && curEdge.v1_near_2 != INT_MAX)
+		if (curEdge.v1_near_1 != INT_MAX && curEdge.v1_near_2 != INT_MAX && curEdge.v2_near_1 != INT_MAX && curEdge.v2_near_2 != INT_MAX)
 		{
-			edge new_edge;
+			edge new_edge, new_edge_2;
 			std::pair<int, int> lineIdx;
+			std::pair<int, int> lineIdx2;
+			std::pair<int, int> lineIdx_tmp;
+			std::pair<int, int> lineIdx2_tmp;
 			unsigned int new_edge_idx = edgeList.size();
+			unsigned int new_edge_idx_2 = edgeList.size()+1;
 			lineIdx = std::pair<int, int>(curEdge.v1_near_1, curEdge.v1_near_2);
-			new_face.v[0] = lineIdx.first; new_face.v[3] = lineIdx.second;
+			lineIdx2 = std::pair<int, int>(curEdge.v2_near_1, curEdge.v2_near_2);
+
+
+			//glm::vec3 vertex_pos = vertexList[lineIdx.second].pos; glm::vec3 vertex_pos2 = vertexList[lineIdx.first].pos;
+			//glm::vec3 vertex_pos3 = vertexList[lineIdx2.second].pos; glm::vec3 vertex_pos4 = vertexList[lineIdx2.first].pos;
+			
+			glm::vec3 edge_1 = vertexList[lineIdx.second].pos - vertexList[lineIdx.first].pos;
+			glm::vec3 edge_2 = vertexList[lineIdx2.first].pos - vertexList[lineIdx.first].pos;
+			float angle = glm::angle(edge_1, edge_2);
+			if (find_edge(edgeIndexx, lineIdx.first, lineIdx2.first))
+			{
+				new_face.v[0] = lineIdx.first; new_face.v[1] = lineIdx.second;
+				new_face.v[3] = lineIdx2.first; new_face.v[2] = lineIdx2.second;
+				lineIdx_tmp = std::pair<int, int>(lineIdx.first, lineIdx.second);
+				lineIdx2_tmp = std::pair<int, int>(lineIdx2.second, lineIdx2.first);
+			}
+			else
+			{
+				new_face.v[0] = lineIdx.first; new_face.v[3] = lineIdx.second;
+				new_face.v[1] = lineIdx2.first; new_face.v[2] = lineIdx2.second;
+				lineIdx_tmp = std::pair<int, int>(lineIdx.second, lineIdx.first);
+				lineIdx2_tmp = std::pair<int, int>(lineIdx2.first, lineIdx2.second);
+			}
 			new_edge.v1 = lineIdx.first; new_edge.v2 = lineIdx.second;
+			new_edge_2.v1 = lineIdx2.first; new_edge_2.v2 = lineIdx2.second;
+
 			new_edge.mid = 0.5f * (vertexList[new_edge.v1].pos + vertexList[new_edge.v2].pos);
 			new_face_mid += 0.25f * (vertexList[new_edge.v1].pos + vertexList[new_edge.v2].pos);
-			edgeIndexx[lineIdx] = new_edge_idx;
+			new_edge_2.mid = 0.5f * (vertexList[new_edge_2.v1].pos + vertexList[new_edge_2.v2].pos);
+			new_face_mid += 0.25f * (vertexList[new_edge_2.v1].pos + vertexList[new_edge_2.v2].pos);
+
+			edgeIndexx[lineIdx_tmp] = new_edge_idx;
+			edgeIndexx[lineIdx2_tmp] = new_edge_idx_2;
+
 			new_face.n_edge.push_back(new_edge_idx);
+			new_face.n_edge.push_back(new_edge_idx_2);
+
 			new_edge.n_face.push_back(face_index);
 			edgeList.push_back(std::move(new_edge));
-		}
-		if (curEdge.v2_near_1 != INT_MAX && curEdge.v2_near_2 != INT_MAX)
-		{
-			edge new_edge;
-			std::pair<int, int> lineIdx;
-			unsigned int new_edge_idx = edgeList.size();
-			lineIdx = std::pair<int, int>(curEdge.v2_near_1, curEdge.v2_near_2);
-			new_face.v[1] = lineIdx.first; new_face.v[2] = lineIdx.second;
-			new_edge.v1 = lineIdx.first; new_edge.v2 = lineIdx.second;
-			new_edge.mid = 0.5f * (vertexList[new_edge.v1].pos + vertexList[new_edge.v2].pos);
-			new_face_mid += 0.25f * (vertexList[new_edge.v1].pos + vertexList[new_edge.v2].pos);
-			edgeIndexx[lineIdx] = new_edge_idx;
-			new_face.n_edge.push_back(new_edge_idx);
-			new_edge.n_face.push_back(face_index);
-			edgeList.push_back(std::move(new_edge));
+			new_edge_2.n_face.push_back(face_index);
+			edgeList.push_back(std::move(new_edge_2));
 		}
 		new_face.face_side = 3; new_face.face_num = face_index;
 		new_face.face_mid_point = new_face_mid;
@@ -327,21 +349,39 @@ subdiv() {
 				}
 			}
 		}
-		pass_tmp[0] = tmp_save[0];
-		int pass_pointer = 0;
+		
+		for (size_t j = 0; j < 2*FACE_NUM; j+=2)
+		{
+			if (tmp_save[j] != -1)
+			{
+				if (find_edge(edgeIndexx, tmp_save[j], tmp_save[j+1]))
+				{
+					pass_tmp[0] = tmp_save[j+1];
+					pass_tmp[1] = tmp_save[j];
+					break;
+				}
+			}
+		}
+		int pass_pointer = 1;
 		for (size_t j = 0; j < 2*FACE_NUM; j+=2)
 		{
 			if (tmp_save[j] != -1)
 			{
 				if (tmp_save[j] == pass_tmp[pass_pointer])
 				{
-					pass_pointer++;
-					pass_tmp[pass_pointer] = tmp_save[j + 1];
+					if (tmp_save[j + 1] != pass_tmp[0])
+					{
+						pass_pointer++;
+						pass_tmp[pass_pointer] = tmp_save[j + 1];
+					}
 				}
 				else if (tmp_save[j + 1] == pass_tmp[pass_pointer])
 				{
-					pass_pointer++;
-					pass_tmp[pass_pointer] = tmp_save[j];
+					if (tmp_save[j] != pass_tmp[0])
+					{
+						pass_pointer++;
+						pass_tmp[pass_pointer] = tmp_save[j];
+					}
 				}
 			}
 			else
@@ -430,6 +470,7 @@ std::pair<int, int> lineOrder(int v1, int v2)
 	if (v1 < v2) return std::pair<int, int>(v1, v2);
 	else return std::pair<int, int>(v2, v1);
 }
+
 
 bool find_edge(std::map<std::pair<int, int>, int> edgeIndexx, int v1, int v2)
 {

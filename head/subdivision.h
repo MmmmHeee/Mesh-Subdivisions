@@ -58,15 +58,16 @@ public:
 	void loadMesh(obj_mesh & _obj) override;
 	obj_mesh execute_doosabin(unsigned int _times = 3) {
 		obj_mesh tmp;
+		obj_mesh tmp_mesh;
 		for (unsigned int i = 0; i < _times; i += 1) {
 			subdiv();
-			obj_mesh tmp_mesh = makeMesh();
+			tmp_mesh = makeMesh();
 			writeObj("test.obj", tmp_mesh);
 			loadObj("test.obj", tmp);
 			loadMesh(tmp);
-			writeObj("output.obj", tmp_mesh);
+			//writeObj("output.obj", tmp_mesh);
 		}
-		return tmp;
+		return tmp_mesh;
 	}
 	
 

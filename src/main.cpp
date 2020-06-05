@@ -15,6 +15,6 @@ int main()
 	DoosabinSubdivision doosabin;
 	doosabin.loadMesh(obj);
 	obj = doosabin.execute_doosabin(2);
-	//writeObj("output.obj", obj);
+	writeObj("output.obj", obj);
 	return 0;
 }
