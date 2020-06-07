@@ -44,6 +44,7 @@ class CatmullSubdivision : public Subdivision {
 		//Note: In this Catmull Clark implementation, we ignored uv & normal to save some time. In fact they can easily be calculated just like pos.
 };
 
+
 #include "subdivisions/doosabin.h"
 class DoosabinSubdivision : public Subdivision {
 private:
@@ -71,5 +72,19 @@ public:
 	}
 	
 
+	//No more normal calculate;
+};
+
+#include "subdivisions/doosabin2.h"
+class Doosabin2Subdivision : public Subdivision {
+private:
+	std::vector<doosabin2::vertex> vertexList;
+	std::vector<doosabin2::edge> edgeList;
+	std::vector<doosabin2::face> faceList;
+protected:
+	void subdiv() override;
+	obj_mesh makeMesh() override;
+public:
+	void loadMesh(obj_mesh & _obj) override;
 	//No more normal calculate;
 };
