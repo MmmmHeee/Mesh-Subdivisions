@@ -1,12 +1,10 @@
-# CG2 Project 5 - Subdivision Surfaces
+# Mesh Subdivisions
+These subdivision algorithms are implemented: 
++ Loop
++ Catmull-Clark
++ Doo-Sabin
 
-## Introduction
-
-This is the final project of ShanghaiTech University's Computer Graphics II(CS271) course.
-We implemented 3 mesh subdivision algorithms: Loop, Catmull-Clark and Doo-Sabin. Those algorithms are only performed 
-on the position of vertices. In theory, normals and uvs can be modified in the same way to form a complete subdivison algorithm.
-
-Under the instruction of Prof. ChiHan Peng, we successfully implemented the whole framework to perform subdivision algorithms.
+Algorithms are applied on an obj file. Only the position of vertices are modified.
 
 ## Contributor
 
