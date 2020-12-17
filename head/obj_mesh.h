@@ -21,4 +21,4 @@ typedef struct {
 } obj_mesh;
 
 bool loadObj(std::string _filepath, obj_mesh & _obj);
-bool writeObj(std::string _filepath, obj_mesh & _obj);
+bool writeObj(std::string _filepath, obj_mesh _obj);

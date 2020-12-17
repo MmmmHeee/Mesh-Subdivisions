@@ -202,7 +202,7 @@ bool loadObj(std::string _filepath, obj_mesh & _obj) {
 }
 
 // write the obj mesh into file
-bool writeObj(std::string _filepath, obj_mesh & _obj) {
+bool writeObj(std::string _filepath, obj_mesh _obj) {
     std::ofstream ofs(_filepath);
     if (!ofs) {
         std::cout << "cannot write obj file: " << _filepath << std::endl;
